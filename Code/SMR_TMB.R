@@ -10,16 +10,6 @@ require(ggplot2)
 require(reshape2)
 require(tidyr)
 require(dplyr)
-library(cowplot)
-library(grid)
-library(gridExtra)
-library(sf)
-library(raster)
-library(spData)
-library(spDataLarge)
-library(tmap)
-library(leaflet)
-library(bcmaps)
 
 ###########################################################################
 ########################### available functions ###########################
@@ -880,7 +870,7 @@ real_tel    <- read.csv(file=paste0(path,"/Data/Nechako telemetry.csv"))
       facet_grid( outcome~., switch = "x") +
       theme(strip.background = element_blank(), strip.text = element_blank()) +
       geom_text(aes(label=outcome), x=.6, y=Inf, hjust=0, vjust=1, size=5) +
-      ylab("Bias: (model predicted - simulated)/simulated") + 
+      ylab("Proportional error") + 
       xlab("Simulation type - model type")
   } # tenyear
   else {
@@ -948,6 +938,19 @@ real_tel    <- read.csv(file=paste0(path,"/Data/Nechako telemetry.csv"))
                        lower50 = c(bias_dec[,5],bias_N[,5]),
                        lower90 = c(bias_dec[,6],bias_N[,6]))
   }
+  ggplot(data=df1,aes(x=treatment,y=median,ymin=lower90,ymax=upper90)) +
+    geom_hline(yintercept=seq(-0.2,0.2,0.05),colour="grey80",lty=3) +
+    geom_pointrange(fatten=6) +
+    geom_errorbar(aes(x=treatment,y=median,ymin=lower50,ymax=upper50),width=0,lwd=2,
+                  show.legend = FALSE) +
+    theme_classic(base_size=18) +
+    geom_hline(yintercept=0,lty=2) +
+    facet_grid( outcome~., switch = "x") +
+    theme(strip.background = element_blank(), strip.text = element_blank()) +
+    geom_text(aes(label=outcome), x=.6, y=Inf, hjust=0, vjust=1, size=5) +
+    ylab("Proportional error") + 
+    xlab("Simulation type - model type")
+  
   
   df3 <- rbind( df1, df2 )
   
@@ -963,7 +966,7 @@ real_tel    <- read.csv(file=paste0(path,"/Data/Nechako telemetry.csv"))
     facet_grid( outcome~., switch = "x") +
     theme(strip.background = element_blank(), strip.text = element_blank()) +
     geom_text(aes(label=outcome), colour='grey40', x=.6, y=Inf,  hjust=0, vjust=1, size=5,show.legend = FALSE) +
-    ylab("Bias: (model predicted - simulated)/simulated") + 
+    ylab("Proportional error") + 
     xlab("Simulation type - model type")
 }
 
